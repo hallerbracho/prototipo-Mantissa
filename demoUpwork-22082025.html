@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Prototype - Incoterms</title>
+
+    <!-- CSS is embedded directly in the HTML for a single-file solution -->
+    <style>
+        /* General styles and main container */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .elearning-container {
+            width: 100%;
+            max-width: 650px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        h2 {
+            color: #005a9e;
+        }
+
+        /* Main interaction panel */
+        .interaction-panel {
+            border: 1px solid #0078d4;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #eaf5ff;
+        }
+
+        /* Grid structure */
+        .grid-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .row-header {
+            width: 80px;
+            font-weight: bold;
+            padding-right: 15px;
+        }
+
+        .grid-cell {
+            border: 2px solid #0078d4;
+            padding: 8px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            text-align: center;
+            background-color: #fff;
+            transition: background-color 0.2s, color 0.2s;
+            flex-grow: 1;
+        }
+
+        /* Focus, selected, and result states (critical for accessibility) */
+        .grid-cell:focus, button:focus {
+            outline: 3px solid #ffbf47; /* A highly visible focus outline */
+            outline-offset: 2px;
+        }
+
+        .grid-cell.selected {
+            background-color: #0078d4;
+            color: #fff;
+            border-color: #005a9e;
+            font-weight: bold;
+        }
+        
+        /* Confirm button styles */
+        #confirm-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #888;
+            background-color: #f0f0f0;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #confirm-btn:disabled {
+            cursor: not-allowed;
+            background-color: #ccc;
+            color: #888;
+            border-color: #aaa;
+        }
+
+        /* Feedback panel */
+        .feedback-panel {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        /* Correct/Incorrect visual markers */
+        .grid-cell .marker {
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .grid-cell.correct .marker::after {
+            content: '✓';
+            color: #008000;
+        }
+
+        .grid-cell.incorrect .marker::after {
+            content: '✗';
+            color: #d90000;
+        }
+
+        /* Simulated footer */
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The HTML content of the interaction -->
+    <div class="elearning-container">
+        <div class="header">
+            <h2>Question 3</h2>
+            <p>A consignment of goods is damaged during a sea voyage, when other cargo shifts in a storm.</p>
+        </div>
+
+        <div class="interaction-panel">
+            <p id="grid-label">For each of these Incoterms rules, who would be responsible for claiming under the marine insurance?</p>
+
+            <!-- The accessible grid with ARIA roles -->
+            <div id="incoterm-grid" role="grid" aria-labelledby="grid-label">
+                <!-- Row 1: FOB -->
+                <div role="row" class="grid-row">
+                    <div role="rowheader" class="row-header">FOB</div>
+                    <div role="gridcell" class="grid-cell" tabindex="0" data-row="0" data-col="0" aria-label="Buyer option for the FOB rule" aria-selected="false">BUYER</div>
+                    <div role="gridcell" class="grid-cell" tabindex="-1" data-row="0" data-col="1" aria-label="Seller option for the FOB rule" aria-selected="false">SELLER</div>
+                </div>
+                <!-- Row 2: CIP -->
+                <div role="row" class="grid-row">
+                    <div role="rowheader" class="row-header">CIP</div>
+                    <div role="gridcell" class="grid-cell" tabindex="-1" data-row="1" data-col="0" aria-label="Buyer option for the CIP rule" aria-selected="false">BUYER</div>
+                    <div role="gridcell" class="grid-cell" tabindex="-1" data-row="1" data-col="1" aria-label="Seller option for the CIP rule" aria-selected="false">SELLER</div>
+                </div>
+                <!-- Row 3: DPU -->
+                <div role="row" class="grid-row">
+                    <div role="rowheader" class="row-header">DPU</div>
+                    <div role="gridcell" class="grid-cell" tabindex="-1" data-row="2" data-col="0" aria-label="Buyer option for the DPU rule" aria-selected="false">BUYER</div>
+                    <div role="gridcell" class="grid-cell" tabindex="-1" data-row="2" data-col="1" aria-label="Seller option for the DPU rule" aria-selected="false">SELLER</div>
+                </div>
+            </div>
+
+            <p class="instructions">Use the arrow keys to navigate and Spacebar to select. Then, tab to the CONFIRM button.</p>
+        </div>
+        
+        <button id="confirm-btn" disabled>CONFIRM</button>
+
+        <!-- Feedback area with aria-live for screen reader announcements -->
+        <div id="feedback-area" class="feedback-panel" aria-live="polite" style="visibility: hidden;">
+            <p id="feedback-score" style="font-weight: bold;"></p>
+            <p id="feedback-text"></p>
+        </div>
+
+        <!-- Data store for answers and text strings, making translation easy -->
+        <div id="data-store" style="display: none;"
+             data-correct-answers='["0", "0", "1"]'
+             data-feedback-perfect-score="Very good! You scored 3 out of 3."
+             data-feedback-not-perfect-score="You scored [SCORE] out of 3."
+             data-feedback-text="In FOB and CIP, the buyer is responsible once the goods are on board or taken in charge by the carrier. In DPU, the seller retains responsibility until the goods have been unloaded at their destination.">
+        </div>
+
+        <div class="footer">
+          <span>Resources</span>
+          <span>4. Self Assessment</span>
+          <span>4/9</span>
+          <span>&#9664; &#9654;</span>
+        </div>
+    </div>
+
+    <!-- JavaScript is embedded just before the closing body tag -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // DOM element references
+            const grid = document.getElementById('incoterm-grid');
+            const cells = Array.from(grid.querySelectorAll('[role="gridcell"]'));
+            const confirmBtn = document.getElementById('confirm-btn');
+            const feedbackArea = document.getElementById('feedback-area');
+            const feedbackScore = document.getElementById('feedback-score');
+            const feedbackText = document.getElementById('feedback-text');
+            const dataStore = document.getElementById('data-store');
+
+            // Constants and initial state
+            const numRows = 3;
+            const numCols = 2;
+            let selections = [-1, -1, -1]; // Stores the selected column index (0 or 1) for each row
+
+            // Event listeners
+            grid.addEventListener('keydown', handleKeydown);
+            grid.addEventListener('click', handleClick);
+            confirmBtn.addEventListener('click', checkAnswers);
+
+            // Handles keyboard navigation within the grid
+            function handleKeydown(e) {
+                const activeCell = document.activeElement;
+                if (!activeCell.matches('[role="gridcell"]')) return;
+
+                let currentRow = parseInt(activeCell.dataset.row);
+                let currentCol = parseInt(activeCell.dataset.col);
+                let nextRow = currentRow;
+                let nextCol = currentCol;
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        nextRow = Math.max(0, currentRow - 1);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        nextRow = Math.min(numRows - 1, currentRow + 1);
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        nextCol = Math.max(0, currentCol - 1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        nextCol = Math.min(numCols - 1, currentCol + 1);
+                        break;
+                    case ' ': // Spacebar
+                    case 'Enter':
+                        e.preventDefault();
+                        selectOption(activeCell);
+                        return;
+                    default:
+                        return;
+                }
+                
+                focusCell(nextRow, nextCol);
+            }
+
+            // Handles mouse interaction
+            function handleClick(e) {
+                const cell = e.target.closest('.grid-cell');
+                if (cell) {
+                    selectOption(cell);
+                }
+            }
+
+            // Moves focus to a specific cell
+            function focusCell(row, col) {
+                cells.forEach(cell => cell.setAttribute('tabindex', '-1'));
+                const newFocusCell = grid.querySelector(`[data-row='${row}'][data-col='${col}']`);
+                if (newFocusCell) {
+                    newFocusCell.setAttribute('tabindex', '0');
+                    newFocusCell.focus();
+                }
+            }
+
+            // Logic for selecting an option
+            function selectOption(cell) {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+
+                const rowCells = grid.querySelectorAll(`[data-row='${row}']`);
+                rowCells.forEach(c => {
+                    c.classList.remove('selected');
+                    c.setAttribute('aria-selected', 'false');
+                });
+
+                cell.classList.add('selected');
+                cell.setAttribute('aria-selected', 'true');
+                selections[row] = col;
+
+                checkCompletion();
+            }
+
+            // Checks if all rows have a selection to enable the confirm button
+            function checkCompletion() {
+                const isComplete = selections.every(sel => sel !== -1);
+                confirmBtn.disabled = !isComplete;
+            }
+
+            // Checks answers and displays feedback
+            function checkAnswers() {
+                const correctAnswers = JSON.parse(dataStore.dataset.correctAnswers);
+                let score = 0;
+                
+                for (let i = 0; i < numRows; i++) {
+                    const selectedCell = grid.querySelector(`[data-row='${i}'][data-col='${selections[i]}']`);
+                    const marker = document.createElement('span');
+                    marker.className = 'marker';
+                    
+                    const oldMarker = selectedCell.querySelector('.marker');
+                    if(oldMarker) oldMarker.remove();
+
+                    if (selections[i] === parseInt(correctAnswers[i])) {
+                        score++;
+                        selectedCell.classList.add('correct');
+                    } else {
+                        selectedCell.classList.add('incorrect');
+                    }
+                    selectedCell.appendChild(marker);
+                }
+
+                // Display the appropriate feedback text
+                if (score === numRows) {
+                    feedbackScore.textContent = dataStore.dataset.feedbackPerfectScore;
+                } else {
+                    feedbackScore.textContent = dataStore.dataset.feedbackNotPerfectScore.replace('[SCORE]', score);
+                }
+                feedbackText.textContent = dataStore.dataset.feedbackText;
+                feedbackArea.style.visibility = 'visible';
+
+                // Disable the interaction after submission
+                grid.removeEventListener('keydown', handleKeydown);
+                grid.removeEventListener('click', handleClick);
+                cells.forEach(cell => cell.setAttribute('tabindex', '-1')); // Remove grid from tab order
+                confirmBtn.disabled = true;
+            }
+        });
+    </script>
+
+</body>
+</html>
